@@ -1,0 +1,129 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: payday-prod
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payday-app
+  namespace: payday-prod
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: payday-app
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: payday-app
+    spec:
+      containers:
+      - name: payday-app
+        image: abdell001/payday-finance:latest
+        ports:
+        - containerPort: 80
+        readinessProbe:
+          httpGet:
+            path: /index.html
+            port: 80
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /index.html
+            port: 80
+          initialDelaySeconds: 20
+          periodSeconds: 20
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 100m
+            memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: payday-app-service
+  namespace: payday-prod
+spec:
+  selector:
+    app: payday-app
+  ports:
+  - port: 80
+    targetPort: 80
+  type: LoadBalancer
+
+
+
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: payday-prod
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payday-app
+  namespace: payday-prod
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: payday-app
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: payday-app
+    spec:
+      containers:
+      - name: payday-app
+        image: abdell001/payday-finance:latest
+        ports:
+        - containerPort: 80
+        readinessProbe:
+          httpGet:
+            path: /index.html
+            port: 80
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /index.html
+            port: 80
+          initialDelaySeconds: 20
+          periodSeconds: 20
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 100m
+            memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: payday-app-service
+  namespace: payday-prod
+spec:
+  selector:
+    app: payday-app
+  ports:
+  - port: 80
+    targetPort: 80
+  type: LoadBalancer
+

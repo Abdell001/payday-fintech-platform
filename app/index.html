@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Payday Finance</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background: #0f172a; color: white; }
+    .card { background: #1e293b; border: none; }
+    .balance { font-size: 2.5rem; font-weight: bold; color: #60a5fa; }
+  </style>
+</head>
+<body>
+  <div class="container py-5">
+    <h1 class="mb-4">💳 Payday Finance</h1>
+    <div class="row">
+      <div class="col-md-4 mb-3">
+        <div class="card p-4">
+          <p class="text-muted">Your Balance</p>
+          <p class="balance">$254,800</p>
+          <small class="text-muted">**** **** **** 2560</small>
+        </div>
+      </div>
+      <div class="col-md-8 mb-3">
+        <div class="card p-4">
+          <h5>Recent Transactions</h5>
+          <ul class="list-group list-group-flush bg-transparent">
+            <li class="list-group-item bg-transparent text-white border-secondary">
+              C2C Transfer — Abdulhayyu <span class="float-end text-danger">-$250</span>
+            </li>
+            <li class="list-group-item bg-transparent text-white border-secondary">
+              Salary Credit <span class="float-end text-success">+$5,000</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <p class="text-muted mt-4">Version: 1.0.0 | Deployed via GitOps on GKE</p>
+  </div>
+</body>
+</html>
+

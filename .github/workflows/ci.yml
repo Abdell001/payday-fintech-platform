@@ -1,0 +1,74 @@
+name: CI - Build, Scan, Push, Update Manifests
+
+on:
+  push:
+    branches: ["**"]
+    paths:
+      - "app/**"
+      - "k8s/**"
+      - ".github/workflows/ci.yml"
+  pull_request:
+    paths-ignore:
+      - "*.md"
+      - "docs/**"
+
+env:
+  IMAGE_NAME: abdell001/payday-finance
+
+jobs:
+  build_scan_and_deploy:
+    runs-on: ubuntu-latest
+    name: Build, Scan, and Deploy
+    environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set image tag
+        run: echo "IMAGE_TAG=${{ env.IMAGE_NAME }}:${{ github.sha }}" >> $GITHUB_ENV
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build Docker Image
+        run: docker build -t ${{ env.IMAGE_TAG }} ./app
+
+      - name: Scan Docker Image with Trivy
+        uses: aquasecurity/trivy-action@0.33.1
+        with:
+          image-ref: ${{ env.IMAGE_TAG }}
+          format: table
+          exit-code: "1"
+          severity: CRITICAL,HIGH
+
+      - name: Push Image to Docker Hub
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+        run: docker push ${{ env.IMAGE_TAG }}
+
+      - name: Update Dev Manifest
+        if: github.ref == 'refs/heads/develop'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          sed -i "s|image: abdell001/payday-finance:.*|image: ${{ env.IMAGE_TAG }}|g" k8s/dev/manifests.yaml
+          git add k8s/dev/manifests.yaml
+          git commit -m "ci: update dev image tag to ${{ github.sha }}" || echo "No changes"
+          git push origin develop
+
+      - name: Update Prod Manifest
+        if: github.ref == 'refs/heads/main'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          sed -i "s|image: abdell001/payday-finance:.*|image: ${{ env.IMAGE_TAG }}|g" k8s/production/manifests.yaml
+          git add k8s/production/manifests.yaml
+          git commit -m "ci: update prod image tag to ${{ github.sha }}" || echo "No changes"
+          git push origin main
