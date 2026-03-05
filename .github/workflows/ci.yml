@@ -37,14 +37,14 @@ jobs:
       - name: Build Docker Image
         run: docker build -t ${{ env.IMAGE_TAG }} ./app
 
-            - name: Scan Docker Image with Trivy
+      - name: Scan Docker Image with Trivy
         uses: aquasecurity/trivy-action@0.33.1
         with:
           image-ref: ${{ env.IMAGE_TAG }}
           format: table
           exit-code: "0"
-          severity: CRITICAL,HIGH
           ignore-unfixed: true
+          severity: CRITICAL,HIGH
 
       - name: Push Image to Docker Hub
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
@@ -73,3 +73,14 @@ jobs:
           git add k8s/production/manifests.yaml
           git commit -m "ci: update prod image tag to ${{ github.sha }}" || echo "No changes"
           git push origin main
+```
+
+Press **Ctrl+O** → **Enter** → **Ctrl+X** to save.
+
+---
+
+**Step 2 — Commit and push:**
+```
+git add .github/workflows/ci.yml
+git commit -m "fix: correct yaml syntax in workflow file"
+git push origin main
