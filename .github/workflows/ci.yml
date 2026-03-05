@@ -45,6 +45,19 @@ jobs:
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
         run: docker push ${{ env.IMAGE_TAG }}
 
+      - name: Update Dev Manifest
+        if: github.ref == 'refs/heads/develop'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/Abdell001/payday-fintech-platform.git
+          sed -i "s|image: ${{ env.IMAGE_NAME }}:.*|image: ${{ env.IMAGE_TAG }}|g" k8s/dev/manifests.yaml
+          git add k8s/dev/manifests.yaml
+          git commit -m "ci: update dev image tag to ${{ github.sha }}" || echo "No changes"
+          git push origin develop
+
       - name: Update Prod Manifest
         if: github.ref == 'refs/heads/main'
         env:
@@ -52,7 +65,8 @@ jobs:
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          sed -i "s|image: abdell001/payday-finance:.*|image: ${{ env.IMAGE_TAG }}|g" k8s/production/manifests.yaml
+          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/Abdell001/payday-fintech-platform.git
+          sed -i "s|image: ${{ env.IMAGE_NAME }}:.*|image: ${{ env.IMAGE_TAG }}|g" k8s/production/manifests.yaml
           git add k8s/production/manifests.yaml
           git commit -m "ci: update prod image tag to ${{ github.sha }}" || echo "No changes"
           git push origin main
