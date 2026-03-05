@@ -25,7 +25,7 @@ spec:
     spec:
       containers:
       - name: payday-app
-        image: abdell001/payday-finance:latest
+        image: abdell001/payday-finance:aa95ec9ab5ffd73dea764c878e619a812d588cc4
         ports:
         - containerPort: 80
         readinessProbe:
@@ -91,7 +91,7 @@ spec:
     spec:
       containers:
       - name: payday-app
-        image: abdell001/payday-finance:latest
+        image: abdell001/payday-finance:aa95ec9ab5ffd73dea764c878e619a812d588cc4
         ports:
         - containerPort: 80
         readinessProbe:
