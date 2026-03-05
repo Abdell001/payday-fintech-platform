@@ -1,0 +1,9 @@
+loki:
+  image:
+    tag: 2.9.3
+  persistence:
+    enabled: true
+    size: 10Gi
+
+promtail:
+  enabled: true
