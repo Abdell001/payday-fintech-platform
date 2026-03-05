@@ -1,0 +1,49 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: payday-apps
+  namespace: argocd
+spec:
+  description: Payday Finance Platform
+  sourceRepos:
+    - 'https://github.com/Abdell001/payday-fintech-platform.git'
+  destinations:
+    - namespace: 'payday-*'
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: ''
+      kind: Namespace
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: payday-appset
+  namespace: argocd
+spec:
+  generators:
+    - list:
+        elements:
+          - environment: dev
+            namespace: payday-dev
+            branch: develop
+          - environment: production
+            namespace: payday-prod
+            branch: main
+  template:
+    metadata:
+      name: 'payday-{{environment}}'
+    spec:
+      project: payday-apps
+      source:
+        repoURL: https://github.com/Abdell001/payday-fintech-platform.git
+        targetRevision: '{{branch}}'
+        path: 'k8s/{{environment}}'
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{namespace}}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
