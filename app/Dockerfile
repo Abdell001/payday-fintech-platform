@@ -1,9 +1,7 @@
-FROM nginx:alpine
+FROM nginx:1.27-alpine3.20
 
-# Patch ALL known vulnerabilities at build time
 RUN apk update && apk upgrade --no-cache
 
-# Remove default Nginx page and copy our app
 RUN rm -rf /usr/share/nginx/html/*
 COPY . /usr/share/nginx/html/
 
